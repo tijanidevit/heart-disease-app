@@ -9,8 +9,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const Splash = ({ navigation }) => {
   useEffect(async () => {
     setTimeout(async () => {
-      await AsyncStorage.setItem("userToken", "123456789");
-      // await AsyncStorage.removeItem("userToken");
+      // await AsyncStorage.setItem("userToken", "123456789");
+      await AsyncStorage.removeItem("userToken");
       const userToken = await AsyncStorage.getItem("userToken");
       if (!userToken || userToken == undefined) {
         alert("Please login or register to continue");

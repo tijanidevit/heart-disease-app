@@ -22,9 +22,11 @@ import {
   DiagnoseCard,
   PreviousTestsCard,
 } from "../components";
+import { ActivityIndicator } from "react-native";
 
 const s = require("../style");
 export const Home = ({ navigation }) => {
+  const [loading, setLoading] = useState(true);
   const result = [
     {
       id: 0,
@@ -68,12 +70,13 @@ export const Home = ({ navigation }) => {
     },
   ];
   useEffect(async () => {
-    console.clear();
+    setLoading(true);
     const userToken = await AsyncStorage.getItem("userToken");
     if (!userToken || userToken == undefined) {
       alert("Please login or register to continue");
       navigation.navigate("Login");
     }
+    setLoading(false);
   }, []);
 
   return (
@@ -81,13 +84,18 @@ export const Home = ({ navigation }) => {
       {/* <Header navigation={navigation} title="Home" /> */}
 
       <View style={s.main9}>
-        <GreetingsCard />
+        {loading && <ActivityIndicator size={"small"} color={"#234e33"} />}
+        {!loading && (
+          <View>
+            <GreetingsCard />
 
-        <DiagnoseCard navigation={navigation} />
-        <Text mt="5%" color="black" bold fontSize="xl">
-          Previous Tests' Results
-        </Text>
-        <PreviousTestsCard navigation={navigation} result={result} />
+            <DiagnoseCard navigation={navigation} />
+            <Text mt="5%" color="black" bold fontSize="xl">
+              Previous Tests' Results
+            </Text>
+            <PreviousTestsCard navigation={navigation} result={result} />
+          </View>
+        )}
       </View>
 
       <Footer navigation={navigation} />

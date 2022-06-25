@@ -18,14 +18,7 @@ import {
   Icon,
 } from "native-base";
 import { MaterialIcons, Foundation, AntDesign } from "@expo/vector-icons";
-import {
-  Footer,
-  Header,
-  GreetingsCard,
-  DiagnoseCard,
-  PreviousTestsCard,
-  CenterLogo,
-} from "../components";
+import { Footer, Header, CenterLogo } from "../components";
 
 const s = require("../style");
 export const Profile = ({ navigation }) => {

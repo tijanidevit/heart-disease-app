@@ -27,6 +27,7 @@ export const Footer = ({ navigation }) => {
         onPress={(navigation) => {
           setSelected(0);
           navigateTo("Home");
+          setSelected(0);
         }}
       >
         <Center>
@@ -52,6 +53,7 @@ export const Footer = ({ navigation }) => {
         onPress={(navigation) => {
           setSelected(1);
           navigateTo("Predict");
+          setSelected(1);
         }}
       >
         <Center>
@@ -73,6 +75,7 @@ export const Footer = ({ navigation }) => {
         onPress={() => {
           setSelected(2);
           navigateTo("Predictions");
+          setSelected(2);
         }}
       >
         <Center>
@@ -98,6 +101,7 @@ export const Footer = ({ navigation }) => {
         onPress={() => {
           setSelected(3);
           navigateTo("Profile");
+          setSelected(3);
         }}
       >
         <Center>

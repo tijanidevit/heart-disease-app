@@ -9,9 +9,12 @@ import * as Yup from "yup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import axios from "axios";
+import { USER_URL } from "../constants";
 
 export const Register = ({ navigation }) => {
   const [show, setShow] = useState(false);
+  const [apiMessage, setApiMessage] = useState(null);
   useEffect(async () => {
     await AsyncStorage.removeItem("userToken");
     const userToken = await AsyncStorage.getItem("userToken");
@@ -41,11 +44,25 @@ export const Register = ({ navigation }) => {
           password: Yup.string().required("Password is required").min(8),
         })}
         onSubmit={(values, formikActions) => {
-          console.log(values);
           setTimeout(() => {
-            Alert.alert(JSON.stringify(values));
-            // Important: Make sure to setSubmitting to false so our loading indicator
-            // goes away.
+            formikActions.setSubmitting(true);
+            let formData = new FormData();
+
+            for (let value in values) {
+              formData.append(value, values[value]);
+            }
+
+            console.log("f", formData);
+
+            axios
+              .post(`${USER_URL}/register`, formData)
+              .then((res) => {
+                console.log(res);
+              })
+              .catch((err) => {
+                console.log(err);
+              })
+              .finally(() => alert("done"));
 
             formikActions.setSubmitting(false);
           }, 500);
@@ -57,6 +74,12 @@ export const Register = ({ navigation }) => {
               <FormControl.Label mt="4" fontWeight="extrabold">
                 Fullname
               </FormControl.Label>
+              {apiMessage != null && (
+                <Box bg="danger.400" p="12" rounded="lg">
+                  {apiMessage}
+                </Box>
+              )}
+
               <Input
                 InputLeftElement={
                   <Icon

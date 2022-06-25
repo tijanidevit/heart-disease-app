@@ -15,7 +15,6 @@ import { NativeBaseProvider, Text, StatusBar, Box } from "native-base";
 import { customTheme } from "./themes";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import store from "./redux/store";
 const Stack = createStackNavigator();
 
 export default function App() {
