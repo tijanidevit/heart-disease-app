@@ -9,9 +9,11 @@ import * as Yup from "yup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { USER_URL } from "../constants";
 
 export const Login = ({ navigation }) => {
   const [show, setShow] = useState(false);
+  const [apiMessage, setApiMessage] = useState(null);
   useEffect(async () => {
     await AsyncStorage.removeItem("userToken");
     const userToken = await AsyncStorage.getItem("userToken");
@@ -42,12 +44,33 @@ export const Login = ({ navigation }) => {
           password: Yup.string().required("Password is required").min(8),
         })}
         onSubmit={(values, formikActions) => {
-          console.log(values);
+          setApiMessage(null);
           setTimeout(() => {
-            Alert.alert(JSON.stringify(values));
-            // Important: Make sure to setSubmitting to false so our loading indicator
-            // goes away.
+            formikActions.setSubmitting(true);
+            axios
+              .post(`${USER_URL}/register`, values)
+              .then(async (res) => {
+                let resp = res.data;
+                console.log("resp", resp);
+                if (resp.success == "true") {
+                  await AsyncStorage.setItem(
+                    "userToken",
+                    JSON.stringify(resp.data)
+                  );
+                  await navigation.navigate("Home");
+                } else {
+                  setApiMessage(resp.message);
+                }
+              })
+              .catch((err) => {
+                setApiMessage(err.toString());
+                console.log(err);
+              })
+              .finally(() => {
+                alert("done");
 
+                console.log(`${USER_URL}/register`);
+              });
             formikActions.setSubmitting(false);
           }, 500);
         }}
