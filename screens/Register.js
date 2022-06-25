@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Image, Alert } from "react-native";
-import { Text, Button, FormControl, Input, Icon, Divider } from "native-base";
+import { Text, Button, FormControl, Input, Icon, Box } from "native-base";
 import Logo from "../assets/logo.png";
 const s = require("../style");
 import { useState, useEffect } from "react";
@@ -9,7 +9,7 @@ import * as Yup from "yup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { USER_URL } from "../constants";
 
 export const Register = ({ navigation }) => {
@@ -44,41 +44,41 @@ export const Register = ({ navigation }) => {
           password: Yup.string().required("Password is required").min(8),
         })}
         onSubmit={(values, formikActions) => {
+          setApiMessage(null);
           setTimeout(() => {
             formikActions.setSubmitting(true);
-            let formData = new FormData();
-
-            for (let value in values) {
-              formData.append(value, values[value]);
-            }
-
-            console.log("f", formData);
 
             axios
-              .post(`${USER_URL}/register`, formData)
+              .post(`${USER_URL}/register`, values)
               .then((res) => {
-                console.log(res);
+                console.log(res.data);
               })
               .catch((err) => {
+                setApiMessage(err.toString());
                 console.log(err);
               })
-              .finally(() => alert("done"));
+              .finally(() => {
+                alert("done");
+
+                console.log(`${USER_URL}/register`);
+              });
 
             formikActions.setSubmitting(false);
-          }, 500);
+          }, 1);
         }}
       >
         {(props) => (
           <View>
+            {apiMessage != null && (
+              <Box px="3" bg="danger.600" mt="2" py="2">
+                <Text color="white">{apiMessage}</Text>
+              </Box>
+            )}
+
             <FormControl isRequired>
               <FormControl.Label mt="4" fontWeight="extrabold">
                 Fullname
               </FormControl.Label>
-              {apiMessage != null && (
-                <Box bg="danger.400" p="12" rounded="lg">
-                  {apiMessage}
-                </Box>
-              )}
 
               <Input
                 InputLeftElement={
