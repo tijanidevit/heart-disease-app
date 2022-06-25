@@ -16,7 +16,6 @@ export const Register = ({ navigation }) => {
   const [show, setShow] = useState(false);
   const [apiMessage, setApiMessage] = useState(null);
   useEffect(async () => {
-    await AsyncStorage.removeItem("userToken");
     const userToken = await AsyncStorage.getItem("userToken");
     if (userToken && userToken != undefined) {
       alert("Please login or register to continue");
@@ -50,8 +49,18 @@ export const Register = ({ navigation }) => {
 
             axios
               .post(`${USER_URL}/register`, values)
-              .then((res) => {
-                console.log(res.data);
+              .then(async (res) => {
+                let resp = res.data;
+                console.log("resp", resp);
+                if (resp.success == "true") {
+                  await AsyncStorage.setItem(
+                    "userToken",
+                    JSON.stringify(resp.data)
+                  );
+                  await navigation.navigate("Home");
+                } else {
+                  setApiMessage(resp.message);
+                }
               })
               .catch((err) => {
                 setApiMessage(err.toString());
