@@ -2,22 +2,9 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  Box,
-  Text,
-  View,
-  Image,
-  Center,
-  HStack,
-  Pressable,
-  Icon,
-} from "native-base";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import Logo from "../assets/logo.png";
-import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Text, View } from "native-base";
 import {
   Footer,
-  Header,
   GreetingsCard,
   DiagnoseCard,
   PreviousTestsCard,
@@ -27,6 +14,13 @@ import { ActivityIndicator } from "react-native";
 const s = require("../style");
 export const Home = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState({
+    id: 0,
+    fullname: "",
+    email: "",
+    gender: "",
+    age: "",
+  });
   const result = [
     {
       id: 0,
@@ -72,6 +66,8 @@ export const Home = ({ navigation }) => {
   useEffect(async () => {
     setLoading(true);
     const userToken = await AsyncStorage.getItem("userToken");
+    const authUser = JSON.parse(userToken);
+    setUser(authUser);
     if (!userToken || userToken == undefined) {
       alert("Please login or register to continue");
       navigation.navigate("Login");
@@ -84,10 +80,10 @@ export const Home = ({ navigation }) => {
       {/* <Header navigation={navigation} title="Home" /> */}
 
       <View style={s.main9}>
-        {loading && <ActivityIndicator size={"small"} color={"#234e33"} />}
+        {loading && <ActivityIndicator size={"large"} color={"#234e33"} />}
         {!loading && (
           <View>
-            <GreetingsCard />
+            <GreetingsCard name={user.fullname} />
 
             <DiagnoseCard navigation={navigation} />
             <Text mt="5%" color="black" bold fontSize="xl">

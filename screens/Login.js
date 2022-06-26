@@ -48,7 +48,7 @@ export const Login = ({ navigation }) => {
           setTimeout(() => {
             formikActions.setSubmitting(true);
             axios
-              .post(`${USER_URL}/register`, values)
+              .post(`${USER_URL}/login`, values)
               .then(async (res) => {
                 let resp = res.data;
                 console.log("resp", resp);

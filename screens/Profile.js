@@ -5,11 +5,9 @@ import * as Yup from "yup";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  Box,
   Text,
   View,
-  Image,
-  Center,
+  Box,
   CheckIcon,
   Select,
   Button,
@@ -20,15 +18,30 @@ import {
 import { MaterialIcons, Foundation, AntDesign } from "@expo/vector-icons";
 import { Footer, Header, CenterLogo } from "../components";
 
+import { ActivityIndicator } from "react-native";
+import { USER_URL } from "../constants";
+import axios from "axios";
 const s = require("../style");
+
 export const Profile = ({ navigation }) => {
+  const [loading, setLoading] = useState(false);
+  const [apiMessage, setApiMessage] = useState(null);
+  const [user, setUser] = useState({
+    id: 0,
+    fullname: "",
+    email: "",
+    gender: "",
+    age: "",
+  });
   useEffect(async () => {
-    console.clear();
     const userToken = await AsyncStorage.getItem("userToken");
+    const authUser = JSON.parse(userToken);
+    setUser(authUser);
     if (!userToken || userToken == undefined) {
       alert("Please login or register to continue");
       navigation.navigate("Login");
     }
+    setLoading(false);
   }, []);
 
   const [selected, setSelected] = useState(0);
@@ -44,27 +57,55 @@ export const Profile = ({ navigation }) => {
         </Text>
 
         <Formik
-          initialValues={{ age: "", gender: "" }}
+          initialValues={{ age: "", gender: "", email: user.email }}
           validationSchema={Yup.object({
             age: Yup.number().required("Age is required"),
+            email: Yup.string().required("Email is required"),
             gender: Yup.string().required("Please select a gender"),
           })}
           onSubmit={(values, formikActions) => {
-            console.log(values);
+            setLoading(true);
+            setApiMessage(null);
             setTimeout(() => {
-              formikActions.setSubmitting(false);
-            }, 500);
+              axios
+                .post(`${USER_URL}/update`, values)
+                .then(async (res) => {
+                  let resp = res.data;
+                  console.log("resp", resp);
+                  // if (resp.success == "true") {
+                  //   await AsyncStorage.setItem(
+                  //     "userToken",
+                  //     JSON.stringify(resp.data)
+                  //   );
+                  // } else {
+                  //   setApiMessage(resp.message);
+                  // }
+                })
+                .catch((err) => {
+                  setApiMessage(err.toString());
+                  console.log(err);
+                })
+                .finally(() => {
+                  setLoading(false);
+                  formikActions.setSubmitting(false);
+                });
+            }, 1);
           }}
         >
           {(props) => (
             <View>
+              {apiMessage != null && (
+                <Box px="3" bg="danger.600" mt="2" py="2">
+                  <Text color="white">{apiMessage}</Text>
+                </Box>
+              )}
               <FormControl>
                 <FormControl.Label mt="7" fontWeight="extrabold">
                   Fullname
                 </FormControl.Label>
                 <Input
                   isReadOnly
-                  value="Xpat"
+                  value={user.fullname}
                   InputLeftElement={
                     <Icon
                       as={<MaterialIcons name="person" />}
@@ -89,7 +130,7 @@ export const Profile = ({ navigation }) => {
                 </FormControl.Label>
                 <Input
                   isReadOnly
-                  value="Xpat"
+                  value={user.email}
                   InputLeftElement={
                     <Icon
                       as={<MaterialIcons name="email" />}
@@ -127,7 +168,7 @@ export const Profile = ({ navigation }) => {
                   keyboardType="numeric"
                   onChangeText={props.handleChange("age")}
                   onBlur={props.handleBlur("age")}
-                  value={props.values.age}
+                  value={props.values.age || user.age}
                   placeholder="20"
                   width="100%"
                   type="number"
@@ -165,8 +206,11 @@ export const Profile = ({ navigation }) => {
                   }}
                   onValueChange={props.handleChange("gender")}
                 >
-                  <Select.Item label="Male" value="M" />
-                  <Select.Item label="Female" value="F" />
+                  {/* {user.gender !== "" && (
+                    <Select.Item label={user.gender} value="user.gender" />
+                  )} */}
+                  <Select.Item label="Male" value="male" />
+                  <Select.Item label="Female" value="femaile" />
                 </Select>
 
                 {props.touched.gender && props.errors.gender ? (
@@ -183,6 +227,7 @@ export const Profile = ({ navigation }) => {
                 disabled={props.isSubmitting}
                 mt="3"
               >
+                {loading && <ActivityIndicator size="small" color="white" />}
                 Submit
               </Button>
             </View>

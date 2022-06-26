@@ -11,9 +11,11 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios, { AxiosError } from "axios";
 import { USER_URL } from "../constants";
+import { ActivityIndicator } from "react-native";
 
 export const Register = ({ navigation }) => {
   const [show, setShow] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [apiMessage, setApiMessage] = useState(null);
   useEffect(async () => {
     const userToken = await AsyncStorage.getItem("userToken");
@@ -46,12 +48,13 @@ export const Register = ({ navigation }) => {
           setApiMessage(null);
           setTimeout(() => {
             formikActions.setSubmitting(true);
+            setIsLoading(true);
 
             axios
               .post(`${USER_URL}/register`, values)
               .then(async (res) => {
                 let resp = res.data;
-                console.log("resp", resp);
+                // console.log("resp", resp);
                 if (resp.success == "true") {
                   await AsyncStorage.setItem(
                     "userToken",
@@ -64,12 +67,10 @@ export const Register = ({ navigation }) => {
               })
               .catch((err) => {
                 setApiMessage(err.toString());
-                console.log(err);
+                // console.log(err);
               })
               .finally(() => {
-                alert("done");
-
-                console.log(`${USER_URL}/register`);
+                setIsLoading(true);
               });
 
             formikActions.setSubmitting(false);
@@ -192,6 +193,7 @@ export const Register = ({ navigation }) => {
               disabled={props.isSubmitting}
               mt="3"
             >
+              {isLoading && <ActivityIndicator size="small" color="white" />}
               Register
             </Button>
             <Button

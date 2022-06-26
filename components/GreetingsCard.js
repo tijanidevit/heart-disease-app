@@ -8,11 +8,7 @@ import {
 import Logo from "../assets/logo.png";
 
 const s = require("../style");
-export const GreetingsCard = ({ navigation }) => {
-  const navigateTo = (screen) => {
-    navigation.navigate(screen);
-  };
-
+export const GreetingsCard = ({ name }) => {
   const [time, setTime] = useState("Morning");
   useEffect(() => {
     var hours = new Date().getHours(); //Current Hours
@@ -30,7 +26,7 @@ export const GreetingsCard = ({ navigation }) => {
       <Box mt="8">
         <Image source={Logo} size="sm" alt="User" />
         <Text fontSize="xl" bold color="black">
-          Good {time}, Ayo
+          Good {time}, {name.split(" ")[0]}
         </Text>
       </Box>
     </View>
