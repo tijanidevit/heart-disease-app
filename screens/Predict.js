@@ -26,20 +26,35 @@ import {
 } from "@expo/vector-icons";
 import { Footer, Header } from "../components";
 import { ActivityIndicator } from "react-native";
+import { authUser, PREDICTIONS_URL } from "../constants";
+import axios from "axios";
 
 const s = require("../style");
 export const Predict = ({ navigation }) => {
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState({
+    id: 0,
+    fullname: "",
+    email: "",
+    gender: "",
+    age: "",
+  });
+  const [selected, setSelected] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(async () => {
-    console.clear();
-    const userToken = await AsyncStorage.getItem("userToken");
-    if (!userToken || userToken == undefined) {
+    let auser = await authUser();
+    if (!auser || typeof auser == undefined) {
       alert("Please login or register to continue");
       navigation.navigate("Login");
     }
-  }, []);
+    setUser(auser);
 
-  const [selected, setSelected] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    if (user.age === null || user.gender === null) {
+      alert("Please update your age and gender to continue");
+      navigation.navigate("Profile");
+    }
+  }, []);
 
   return (
     <SafeAreaView style={s.contain}>

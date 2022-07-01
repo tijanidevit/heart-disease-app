@@ -19,7 +19,7 @@ import { MaterialIcons, Foundation, AntDesign } from "@expo/vector-icons";
 import { Footer, Header, CenterLogo } from "../components";
 
 import { ActivityIndicator } from "react-native";
-import { USER_URL } from "../constants";
+import { authUser, USER_URL } from "../constants";
 import axios from "axios";
 const s = require("../style");
 
@@ -34,13 +34,12 @@ export const Profile = ({ navigation }) => {
     age: "",
   });
   useEffect(async () => {
-    const userToken = await AsyncStorage.getItem("userToken");
-    const authUser = JSON.parse(userToken);
-    setUser(authUser);
-    if (!userToken || userToken == undefined) {
+    let auser = await authUser();
+    if (!auser || typeof auser == undefined) {
       alert("Please login or register to continue");
       navigation.navigate("Login");
     }
+    setUser(auser);
     setLoading(false);
   }, []);
 
@@ -61,9 +60,10 @@ export const Profile = ({ navigation }) => {
           validationSchema={Yup.object({
             age: Yup.number().required("Age is required"),
             email: Yup.string().required("Email is required"),
-            gender: Yup.string().required("Please select a gender"),
+            gender: Yup.string().required("Please select your gender"),
           })}
           onSubmit={(values, formikActions) => {
+            alert("X");
             setLoading(true);
             setApiMessage(null);
             setTimeout(() => {
@@ -99,7 +99,7 @@ export const Profile = ({ navigation }) => {
                   <Text color="white">{apiMessage}</Text>
                 </Box>
               )}
-              <FormControl>
+              {/* <FormControl>
                 <FormControl.Label mt="7" fontWeight="extrabold">
                   Fullname
                 </FormControl.Label>
@@ -116,13 +116,7 @@ export const Profile = ({ navigation }) => {
                   }
                   width="100%"
                 />
-
-                {props.touched.email && props.errors.email ? (
-                  <FormControl.ErrorMessage>
-                    {props.errors.email}
-                  </FormControl.ErrorMessage>
-                ) : null}
-              </FormControl>
+              </FormControl> */}
 
               <FormControl>
                 <FormControl.Label mt="2" fontWeight="extrabold">
@@ -209,8 +203,8 @@ export const Profile = ({ navigation }) => {
                   {/* {user.gender !== "" && (
                     <Select.Item label={user.gender} value="user.gender" />
                   )} */}
-                  <Select.Item label="Male" value="male" />
-                  <Select.Item label="Female" value="femaile" />
+                  <Select.Item label="Male" value="1" />
+                  <Select.Item label="Female" value="0" />
                 </Select>
 
                 {props.touched.gender && props.errors.gender ? (

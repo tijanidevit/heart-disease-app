@@ -1,6 +1,6 @@
 import React from "react";
-import { View, Image, Alert } from "react-native";
-import { Text, Button, FormControl, Input, Icon, Divider } from "native-base";
+import { View, Image, ActivityIndicator } from "react-native";
+import { Text, Button, FormControl, Input, Icon, Box } from "native-base";
 import Logo from "../assets/logo.png";
 const s = require("../style");
 import { useState, useEffect } from "react";
@@ -9,10 +9,12 @@ import * as Yup from "yup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { USER_URL } from "../constants";
+import { setAuthUser, USER_URL } from "../constants";
+import axios from "axios";
 
 export const Login = ({ navigation }) => {
   const [show, setShow] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [apiMessage, setApiMessage] = useState(null);
   useEffect(async () => {
     await AsyncStorage.removeItem("userToken");
@@ -39,24 +41,20 @@ export const Login = ({ navigation }) => {
       <Formik
         initialValues={{ name: "", email: "", password: "" }}
         validationSchema={Yup.object({
-          name: Yup.string().required("Required"),
           email: Yup.string().email("Invalid Email").required("Required"),
-          password: Yup.string().required("Password is required").min(8),
+          password: Yup.string().required("Password is required"),
         })}
         onSubmit={(values, formikActions) => {
           setApiMessage(null);
+          setIsLoading(true);
           setTimeout(() => {
             formikActions.setSubmitting(true);
             axios
               .post(`${USER_URL}/login`, values)
               .then(async (res) => {
                 let resp = res.data;
-                console.log("resp", resp);
                 if (resp.success == "true") {
-                  await AsyncStorage.setItem(
-                    "userToken",
-                    JSON.stringify(resp.data)
-                  );
+                  setAuthUser(JSON.stringify(resp.data));
                   await navigation.navigate("Home");
                 } else {
                   setApiMessage(resp.message);
@@ -64,12 +62,9 @@ export const Login = ({ navigation }) => {
               })
               .catch((err) => {
                 setApiMessage(err.toString());
-                console.log(err);
               })
               .finally(() => {
-                alert("done");
-
-                console.log(`${USER_URL}/register`);
+                setIsLoading(false);
               });
             formikActions.setSubmitting(false);
           }, 500);
@@ -77,6 +72,12 @@ export const Login = ({ navigation }) => {
       >
         {(props) => (
           <View>
+            {apiMessage != null && (
+              <Box px="3" bg="danger.600" mt="2" py="2">
+                <Text color="white">{apiMessage}</Text>
+              </Box>
+            )}
+
             <FormControl isRequired>
               <FormControl.Label mt="7" fontWeight="extrabold">
                 Email Address
@@ -159,6 +160,7 @@ export const Login = ({ navigation }) => {
               disabled={props.isSubmitting}
               mt="3"
             >
+              {isLoading && <ActivityIndicator size="small" color="white" />}
               Submit
             </Button>
           </View>
