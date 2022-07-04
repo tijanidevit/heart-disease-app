@@ -33,7 +33,7 @@ export const Home = ({ navigation }) => {
     setUser(auser);
 
     axios
-      .get(`${PREDICTIONS_URL}/history/${user.id}`)
+      .get(`${PREDICTIONS_URL}/history/${auser.id}`)
       .then(async (res) => {
         let resp = res.data;
         console.log("res", res);
