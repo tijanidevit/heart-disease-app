@@ -26,6 +26,7 @@ const s = require("../style");
 export const Profile = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [apiMessage, setApiMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [user, setUser] = useState({
     id: 0,
     fullname: "",
@@ -58,28 +59,29 @@ export const Profile = ({ navigation }) => {
         <Formik
           initialValues={{ age: "", gender: "", email: user.email }}
           validationSchema={Yup.object({
-            age: Yup.number().required("Age is required"),
-            email: Yup.string().required("Email is required"),
-            gender: Yup.string().required("Please select your gender"),
+            // age: Yup.number().required("Age is required"),
+            // email: Yup.string().required("Email is required"),
+            // gender: Yup.string().required("Please select your gender"),
           })}
           onSubmit={(values, formikActions) => {
-            alert("X");
             setLoading(true);
             setApiMessage(null);
+            setSuccessMessage(null);
             setTimeout(() => {
               axios
                 .post(`${USER_URL}/update`, values)
                 .then(async (res) => {
                   let resp = res.data;
                   console.log("resp", resp);
-                  // if (resp.success == "true") {
-                  //   await AsyncStorage.setItem(
-                  //     "userToken",
-                  //     JSON.stringify(resp.data)
-                  //   );
-                  // } else {
-                  //   setApiMessage(resp.message);
-                  // }
+                  if (resp.success == "true") {
+                    // await AsyncStorage.setItem(
+                    //   "userToken",
+                    //   JSON.stringify(resp.data)
+                    // );
+                    setSuccessMessage(resp.message);
+                  } else {
+                    setApiMessage(resp.message);
+                  }
                 })
                 .catch((err) => {
                   setApiMessage(err.toString());
@@ -99,32 +101,20 @@ export const Profile = ({ navigation }) => {
                   <Text color="white">{apiMessage}</Text>
                 </Box>
               )}
-              {/* <FormControl>
-                <FormControl.Label mt="7" fontWeight="extrabold">
-                  Fullname
-                </FormControl.Label>
-                <Input
-                  isReadOnly
-                  value={user.fullname}
-                  InputLeftElement={
-                    <Icon
-                      as={<MaterialIcons name="person" />}
-                      size={5}
-                      ml="2"
-                      color="muted.400"
-                    />
-                  }
-                  width="100%"
-                />
-              </FormControl> */}
+
+              {apiMessage != null && apiMessage.includes("uccess") && (
+                <Box px="3" bg="success.600" mt="2" py="2">
+                  <Text color="white">{apiMessage}</Text>
+                </Box>
+              )}
 
               <FormControl>
                 <FormControl.Label mt="2" fontWeight="extrabold">
                   Email Address
                 </FormControl.Label>
                 <Input
-                  isReadOnly
-                  value={user.email}
+                  // isReadOnly
+                  value={props.values.email || user.email}
                   InputLeftElement={
                     <Icon
                       as={<MaterialIcons name="email" />}
