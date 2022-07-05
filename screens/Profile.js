@@ -66,7 +66,12 @@ export const Profile = ({ navigation }) => {
           </Text>
 
           <Formik
-            initialValues={{ age: "", gender: "", email: user.email }}
+            initialValues={{
+              age: user.age || "",
+              gender: user.gender || "",
+              email: user.email || "",
+            }}
+            enableReinitialize
             validationSchema={Yup.object({
               // age: Yup.number().required("Age is required"),
               // email: Yup.string().required("Email is required"),

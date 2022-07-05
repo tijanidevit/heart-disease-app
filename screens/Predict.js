@@ -33,6 +33,7 @@ import {
 } from "react-native";
 import { authUser, PREDICTIONS_URL } from "../constants";
 import axios from "axios";
+import InputHelper from "../components/InputHelper";
 
 const s = require("../style");
 export const Predict = ({ navigation }) => {
@@ -46,8 +47,13 @@ export const Predict = ({ navigation }) => {
   });
   const [selected, setSelected] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pageLoaded, setPageLoaded] = useState(false);
+
+  const [apiMessage, setApiMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(async () => {
+    setPageLoaded(false);
     let auser = await authUser();
     if (!auser || typeof auser == undefined) {
       alert("Please login or register to continue");
@@ -59,11 +65,14 @@ export const Predict = ({ navigation }) => {
       alert("Please update your age and gender to continue");
       navigation.navigate("Profile");
     }
+
+    setPageLoaded(true);
   }, []);
 
   return (
     <TouchableWithoutFeedback
       onPress={() => {
+        console.log("djdkjjkdjk");
         Keyboard.dismiss();
       }}
     >
@@ -71,211 +80,410 @@ export const Predict = ({ navigation }) => {
         <Header navigation={navigation} title="Diagnose" />
 
         <View style={s.main}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <Formik
-              initialValues={{
-                age: "",
-                sex: "",
-                cp: "", //Chest Pain
-                trestbps: "", //Resting blood pressure
-                chol: "", //serum cholesterol
-                fbs: "", //fasting blood pressure
-                restecg: "", //resting electrocardiographic results
-                thalach: "", //maximum heart rate achieved
-                exang: "", //exercise induced angina
-                oldpeak: "", //ST depression
-                slope: "", //slope of the peak exercise
-                ca: "", //major vessels
-                thal: "", //thalassemia
-              }}
-              validationSchema={Yup.object({
-                age: Yup.number().required("Age is required"),
-                sex: Yup.number().required("Please select a gender"),
-                cp: Yup.number().required("Please enter cp"),
-                trestbps: Yup.number().required("Please enter trestbps"),
-                chol: Yup.number().required("Please enter chol"),
-                fbs: Yup.number().required("Please enter fbs"),
-                restecg: Yup.number().required("Please enter restecg"),
-                thalach: Yup.number().required("Please enter thalach"),
-                exang: Yup.number().required("Please enter exang"),
-                oldpeak: Yup.number().required("Please enter oldpeak"),
-                slope: Yup.number().required("Please enter slope"),
-                ca: Yup.number().required("Please enter ca"),
-                thal: Yup.number().required("Please enter thal"),
-              })}
-              onSubmit={(values, formikActions) => {
-                console.log(values);
-                setIsSubmitting(true);
-                setTimeout(() => {
-                  formikActions.setSubmitting(false);
-                }, 5000);
+          {!pageLoaded && <ActivityIndicator color="red" size="large" />}
+          {pageLoaded && (
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Formik
+                // enableReinitialize
+                initialValues={{
+                  cp: "", //Chest Pain
+                  trestbps: "", //Resting blood pressure
+                  chol: "", //serum cholesterol
+                  fbs: "", //fasting blood pressure
+                  restecg: "", //resting electrocardiographic results
+                  thalach: "", //maximum heart rate achieved
+                  exang: "", //exercise induced angina
+                  oldpeak: "", //ST depression
+                  slope: "", //slope of the peak exercise
+                  ca: "", //major vessels
+                  thal: "", //thalassemia
+                }}
+                validationSchema={Yup.object({
+                  cp: Yup.number().required("Please enter cp"),
+                  trestbps: Yup.number().required("Please enter trestbps"),
+                  chol: Yup.number().required("Please enter chol"),
+                  fbs: Yup.number().required("Please enter fbs"),
+                  restecg: Yup.number().required("Please enter restecg"),
+                  thalach: Yup.number().required("Please enter thalach"),
+                  exang: Yup.number().required("Please enter exang"),
+                  oldpeak: Yup.number().required("Please enter oldpeak"),
+                  slope: Yup.number().required("Please enter slope"),
+                  ca: Yup.number().required("Please enter ca"),
+                  thal: Yup.number().required("Please enter thal"),
+                })}
+                onSubmit={(values, formikActions) => {
+                  setLoading(true);
+                  setApiMessage(null);
+                  setSuccessMessage(null);
+                  setTimeout(() => {
+                    axios
+                      .post(`${PREDICTIONS_URL}/${user.id}`, values)
+                      .then(async (res) => {
+                        let resp = res.data;
+                        console.log("resp", resp);
+                        if (resp.success == "true") {
+                          await AsyncStorage.setItem(
+                            "userToken",
+                            JSON.stringify(resp.data)
+                          );
+                          setSuccessMessage(resp.message);
+                        } else {
+                          setApiMessage(resp.message);
+                        }
+                      })
+                      .catch((err) => {
+                        setApiMessage(err.toString());
+                        console.log(err);
+                      })
+                      .finally(() => {
+                        setLoading(false);
+                        formikActions.setSubmitting(false);
+                      });
+                  }, 1);
+                }}
+              >
+                {(props) => (
+                  <View>
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        Chest Pain
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.cp}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("cp")}
+                        onBlur={props.handleBlur("cp")}
+                        placeholder="2"
+                        width="100%"
+                        type="number"
+                      />
 
-                setIsSubmitting(false);
-              }}
-            >
-              {(props) => (
-                <View>
-                  <FormControl>
-                    <FormControl.Label mt="7" fontWeight="extrabold">
-                      Fullname
-                    </FormControl.Label>
-                    <Input
-                      isReadOnly
-                      value={user.fullname}
-                      InputLeftElement={
-                        <Icon
-                          as={<MaterialIcons name="person" />}
-                          size={5}
-                          ml="2"
-                          color="muted.400"
-                        />
-                      }
-                      width="100%"
-                    />
+                      {props.touched.cp && props.errors.cp ? (
+                        <InputHelper text={props.errors.cp} />
+                      ) : null}
+                    </FormControl>
 
-                    {props.touched.email && props.errors.email ? (
-                      <FormControl.ErrorMessage>
-                        {props.errors.email}
-                      </FormControl.ErrorMessage>
-                    ) : null}
-                  </FormControl>
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        Resting Blood Pressure
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.trestbps}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("trestbps")}
+                        onBlur={props.handleBlur("trestbps")}
+                        placeholder="160"
+                        width="100%"
+                        type="number"
+                      />
 
-                  <FormControl>
-                    <FormControl.Label mt="2" fontWeight="extrabold">
-                      Email Address
-                    </FormControl.Label>
-                    <Input
-                      isReadOnly
-                      value={user.email}
-                      InputLeftElement={
-                        <Icon
-                          as={<MaterialIcons name="email" />}
-                          size={5}
-                          ml="2"
-                          color="muted.400"
-                        />
-                      }
-                      onChangeText={props.handleChange("email")}
-                      onBlur={props.handleBlur("email")}
-                      placeholder="Email Address"
-                      width="100%"
-                    />
+                      {props.touched.trestbps && props.errors.trestbps ? (
+                        <InputHelper text={props.errors.trestbps} />
+                      ) : null}
+                    </FormControl>
 
-                    {props.touched.email && props.errors.email ? (
-                      <FormControl.ErrorMessage>
-                        {props.errors.email}
-                      </FormControl.ErrorMessage>
-                    ) : null}
-                  </FormControl>
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        Serum Cholesterol
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.chol}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("chol")}
+                        onBlur={props.handleBlur("chol")}
+                        placeholder="286"
+                        width="100%"
+                        type="number"
+                      />
 
-                  <FormControl isRequired>
-                    <FormControl.Label mt="2" fontWeight="bold">
-                      Age
-                    </FormControl.Label>
-                    <Input
-                      InputLeftElement={
-                        <Icon
-                          as={<AntDesign name="calculator" />}
-                          size={5}
-                          ml="2"
-                          color="muted.400"
-                        />
-                      }
-                      keyboardType="numeric"
-                      onChangeText={props.handleChange("age")}
-                      onBlur={props.handleBlur("age")}
-                      value={props.values.age || user.age}
-                      placeholder="20"
-                      width="100%"
-                      type="number"
-                    />
+                      {props.touched.chol && props.errors.chol ? (
+                        <InputHelper text={props.errors.chol} />
+                      ) : null}
+                    </FormControl>
 
-                    {props.touched.age && props.errors.age ? (
-                      <FormControl.ErrorMessage>
-                        {props.errors.age}
-                      </FormControl.ErrorMessage>
-                    ) : null}
-                  </FormControl>
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        Fasting Blood Pressure
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.fbs}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("fbs")}
+                        onBlur={props.handleBlur("fbs")}
+                        placeholder="0"
+                        width="100%"
+                        type="number"
+                      />
 
-                  <FormControl isRequired>
-                    <FormControl.Label mt="2" fontWeight="bold">
-                      Gender
-                    </FormControl.Label>
-                    <Select
-                      InputLeftElement={
-                        <Icon
-                          as={<Foundation name="torsos-male-female" />}
-                          size={5}
-                          ml="2"
-                          color="muted.400"
-                        />
-                      }
-                      selectedValue={props.values.gender}
-                      onBlur={props.handleBlur("gender")}
-                      value={props.values.gender}
-                      width="100%"
-                      accessibilityLabel="Select Gender"
-                      placeholder="Select Gender"
-                      _selectedItem={{
-                        bg: "teal.600",
-                        endIcon: <CheckIcon size="5" />,
-                      }}
-                      onValueChange={props.handleChange("gender")}
+                      {props.touched.fbs && props.errors.fbs ? (
+                        <InputHelper text={props.errors.fbs} />
+                      ) : null}
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        Resting Electrocardiographic Results
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.restecg}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("restecg")}
+                        onBlur={props.handleBlur("restecg")}
+                        placeholder="2"
+                        width="100%"
+                        type="number"
+                      />
+
+                      {props.touched.restecg && props.errors.restecg ? (
+                        <InputHelper text={props.errors.restecg} />
+                      ) : null}
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        Maximum heart rate achieved
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.thalach}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("thalach")}
+                        onBlur={props.handleBlur("thalach")}
+                        placeholder="108"
+                        width="100%"
+                        type="number"
+                      />
+
+                      {props.touched.thalach && props.errors.thalach ? (
+                        <InputHelper text={props.errors.thalach} />
+                      ) : null}
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        Exercise induced angina
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.exang}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("exang")}
+                        onBlur={props.handleBlur("exang")}
+                        placeholder="1"
+                        width="100%"
+                        type="number"
+                      />
+
+                      {props.touched.exang && props.errors.exang ? (
+                        <InputHelper text={props.errors.exang} />
+                      ) : null}
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        ST depression
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.oldpeak}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("oldpeak")}
+                        onBlur={props.handleBlur("oldpeak")}
+                        placeholder="2"
+                        width="100%"
+                        type="number"
+                      />
+
+                      {props.touched.oldpeak && props.errors.oldpeak ? (
+                        <InputHelper text={props.errors.oldpeak} />
+                      ) : null}
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        Slope of the peak exercise
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.slope}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("slope")}
+                        onBlur={props.handleBlur("slope")}
+                        placeholder="2"
+                        width="100%"
+                        type="number"
+                      />
+
+                      {props.touched.slope && props.errors.slope ? (
+                        <InputHelper text={props.errors.slope} />
+                      ) : null}
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        Major vessels
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.ca}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("ca")}
+                        onBlur={props.handleBlur("ca")}
+                        placeholder="1.5"
+                        width="100%"
+                        type="number"
+                      />
+
+                      {props.touched.ca && props.errors.ca ? (
+                        <InputHelper text={props.errors.ca} />
+                      ) : null}
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        Serum Cholesterol
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.chol}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("chol")}
+                        onBlur={props.handleBlur("chol")}
+                        placeholder="2"
+                        width="100%"
+                        type="number"
+                      />
+
+                      {props.touched.chol && props.errors.chol ? (
+                        <InputHelper text={props.errors.chol} />
+                      ) : null}
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormControl.Label mt="2" fontWeight="extrabold">
+                        Thalassemia
+                      </FormControl.Label>
+                      <Input
+                        keyboardType="numeric"
+                        value={props.values.thal}
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialIcons name="list" />}
+                            size={5}
+                            ml="2"
+                            color="muted.400"
+                          />
+                        }
+                        onChangeText={props.handleChange("thal")}
+                        onBlur={props.handleBlur("thal")}
+                        placeholder="3"
+                        width="100%"
+                        type="number"
+                      />
+
+                      {props.touched.thal && props.errors.thal ? (
+                        <InputHelper text={props.errors.thal} />
+                      ) : null}
+                    </FormControl>
+                    <Button
+                      onPress={props.handleSubmit}
+                      colorScheme="danger"
+                      loading={props.isSubmitting}
+                      disabled={props.isSubmitting}
+                      my="3"
                     >
-                      <Select.Item label="Male" value="1" />
-                      <Select.Item label="Female" value="0" />
-                    </Select>
-
-                    {props.touched.gender && props.errors.gender ? (
-                      <FormControl.ErrorMessage>
-                        {props.errors.gender}
-                      </FormControl.ErrorMessage>
-                    ) : null}
-                  </FormControl>
-
-                  <FormControl>
-                    <FormControl.Label mt="2" fontWeight="extrabold">
-                      Chest Pain
-                    </FormControl.Label>
-                    <Input
-                      value={props.values.cp}
-                      InputLeftElement={
-                        <Icon
-                          as={<MaterialIcons name="email" />}
-                          size={5}
-                          ml="2"
-                          color="muted.400"
-                        />
-                      }
-                      onChangeText={props.handleChange("cp")}
-                      onBlur={props.handleBlur("cp")}
-                      placeholder="2"
-                      width="100%"
-                    />
-
-                    {props.touched.cp && props.errors.cp ? (
-                      <FormControl.ErrorMessage>
-                        {props.errors.cp}
-                      </FormControl.ErrorMessage>
-                    ) : null}
-                  </FormControl>
-
-                  <Button
-                    onPress={props.handleSubmit}
-                    colorScheme="danger"
-                    loading={props.isSubmitting}
-                    disabled={props.isSubmitting}
-                    mt="3"
-                  >
-                    {isSubmitting && (
-                      <ActivityIndicator color="white" size="small" />
-                    )}
-                    {!isSubmitting && "Submit"}
-                  </Button>
-                </View>
-              )}
-            </Formik>
-          </ScrollView>
+                      {isSubmitting && (
+                        <ActivityIndicator color="white" size="small" />
+                      )}
+                      {!isSubmitting && "Submit"}
+                    </Button>
+                  </View>
+                )}
+              </Formik>
+            </ScrollView>
+          )}
         </View>
 
         <Footer navigation={navigation} />
