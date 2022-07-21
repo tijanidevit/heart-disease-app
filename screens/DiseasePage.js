@@ -12,7 +12,8 @@ import axios from "axios";
 import { ActivityIndicator } from "react-native";
 
 const s = require("../style");
-export const DiseasePage = ({ navigation, disease }) => {
+export const DiseasePage = ({ navigation, route }) => {
+  const { disease } = route.params;
   console.log("disease", disease);
   const [result, setResult] = useState({});
   const [user, setUser] = useState({
