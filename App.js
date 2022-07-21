@@ -10,6 +10,7 @@ import {
   Splash,
   Profile,
   Predictions,
+  DiseasePage,
 } from "./screens";
 import { NativeBaseProvider, Text, StatusBar, Box } from "native-base";
 import { customTheme } from "./themes";
@@ -49,6 +50,7 @@ export default function App() {
             <Stack.Screen name="Predict" component={Predict} />
             <Stack.Screen name="Predictions" component={Predictions} />
             <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="DiseasePage" component={DiseasePage} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

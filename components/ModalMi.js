@@ -30,12 +30,12 @@ export const ModalMi = ({ showModal, result, navigation }) => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          {result !== "None" && (
+          {result === "None" && (
             <Button
               bgColor="danger.500"
               flex="1"
               onPress={() => {
-                navigation.navigate("DiseasePage", (disease = { result }));
+                navigation.navigate("DiseasePage", { disease: { result } });
               }}
             >
               Visit Disease Page

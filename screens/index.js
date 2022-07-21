@@ -5,3 +5,4 @@ export * from "./Predict";
 export * from "./Predictions";
 export * from "./Splash";
 export * from "./Profile";
+export * from "./DiseasePage";
