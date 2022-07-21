@@ -94,11 +94,11 @@ export const Profile = ({ navigation }) => {
                       );
                       setSuccessMessage(resp.message);
                     } else {
-                      setApiMessage(resp.message);
+                      alert(resp.message);
                     }
                   })
                   .catch((err) => {
-                    setApiMessage(err.toString());
+                    alert(err.toString());
                     console.log(err);
                   })
                   .finally(() => {

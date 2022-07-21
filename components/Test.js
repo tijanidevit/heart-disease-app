@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, Card, Spacer, Box, Icon, Pressable } from "native-base";
-import {
-  AntDesign,
-  MaterialCommunityIcons,
-  Fontisto,
-} from "@expo/vector-icons";
+import { Text, Box, Icon, Pressable } from "native-base";
+import { AntDesign } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 const s = require("../style");
 export const Test = ({ navigation, result }) => {
@@ -45,7 +41,7 @@ export const Test = ({ navigation, result }) => {
           maxW="60%"
           fontSize="sm"
         >
-          {result.disease}
+          {result.keyword}
         </Text>
         <Box bg="gray.50" p="1.5" borderRadius="10">
           <Icon as={AntDesign} name="rightcircleo" size="md" color="red" />

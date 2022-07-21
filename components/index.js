@@ -7,3 +7,4 @@ export * from "./Test";
 export * from "./CenterLogo";
 export * from "./AllPredictions";
 export * from "./InputHelper";
+export * from "./ModalMi";

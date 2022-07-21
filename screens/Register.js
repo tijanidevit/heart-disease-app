@@ -65,9 +65,10 @@ export const Register = ({ navigation }) => {
                   let resp = res.data;
                   // console.log("resp", resp);
                   if (resp.success == "true") {
-                    removeAuthUser("a");
-
-                    setAuthUser(resp.data);
+                    await AsyncStorage.setItem(
+                      "userToken",
+                      JSON.stringify(resp.data)
+                    );
                     await navigation.navigate("Home");
                   } else {
                     alert(resp.message);
@@ -78,7 +79,7 @@ export const Register = ({ navigation }) => {
                   // console.log(err);
                 })
                 .finally(() => {
-                  setIsLoading(true);
+                  setIsLoading(false);
                 });
 
               formikActions.setSubmitting(false);

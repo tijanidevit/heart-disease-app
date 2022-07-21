@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text, View } from "native-base";
+import { Text, View, Button } from "native-base";
 import {
   Footer,
   GreetingsCard,
@@ -21,17 +21,9 @@ export const Home = ({ navigation }) => {
     gender: "",
     age: "",
   });
-  let result = [];
-  useEffect(async () => {
-    setLoading(true);
-    let auser = await authUser();
-    if (!auser || typeof auser == undefined) {
-      alert("Please login or register to continue");
-      navigation.navigate("Login");
-    }
+  const [result, setResult] = useState({});
 
-    setUser(auser);
-
+  function getPredictionHistory(auser) {
     axios
       .get(`${PREDICTIONS_URL}/history/${auser.id}`)
       .then(async (res) => {
@@ -39,7 +31,8 @@ export const Home = ({ navigation }) => {
         console.log("res", res);
         console.log("resp", resp);
         if (resp.success == "true") {
-          result = resp.data;
+          setResult(resp.data);
+          console.log("resp.data", resp.data);
         } else {
         }
       })
@@ -49,6 +42,17 @@ export const Home = ({ navigation }) => {
       .finally(() => {
         setLoading(false);
       });
+  }
+  useEffect(async () => {
+    setLoading(true);
+    let auser = await authUser();
+    if (!auser || typeof auser == undefined) {
+      alert("Please login or register to continue");
+      navigation.navigate("Login");
+    }
+
+    setUser(auser);
+    getPredictionHistory(auser);
   }, []);
 
   return (
@@ -60,8 +64,17 @@ export const Home = ({ navigation }) => {
           <GreetingsCard name={user.fullname} />
 
           <DiagnoseCard navigation={navigation} />
-          <Text mt="5%" color="black" bold fontSize="xl">
-            Previous Tests' Results
+          <Text mt="4%" color="black" bold fontSize="xl">
+            Previous Tests' Results{" "}
+            <Button
+              colorScheme="danger"
+              size={"sm"}
+              onPress={() => {
+                getPredictionHistory(user);
+              }}
+            >
+              Refresh
+            </Button>
           </Text>
           {loading && <ActivityIndicator size={"large"} color={"#234e33"} />}
           {!loading && (

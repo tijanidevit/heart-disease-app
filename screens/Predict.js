@@ -2,15 +2,8 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Formik } from "formik";
 import * as Yup from "yup";
-
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  Box,
-  Text,
   View,
-  Image,
-  CheckIcon,
-  Select,
   Button,
   FormControl,
   Input,
@@ -18,7 +11,7 @@ import {
   ScrollView,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Footer, Header } from "../components";
+import { Footer, Header, ModalMi } from "../components";
 import {
   ActivityIndicator,
   TouchableWithoutFeedback,
@@ -38,16 +31,14 @@ export const Predict = ({ navigation }) => {
     gender: "",
     age: "",
   });
-  const [selected, setSelected] = useState(0);
+  const [result, setResult] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
-
-  const [apiMessage, setApiMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(async () => {
     setPageLoaded(false);
     let auser = await authUser();
+    setUser(auser);
     if (!auser || typeof auser == undefined) {
       alert("Please login or register to continue");
       navigation.navigate("Login");
@@ -59,6 +50,7 @@ export const Predict = ({ navigation }) => {
       navigation.navigate("Profile");
     }
 
+    console.log("user", user);
     setPageLoaded(true);
   }, []);
 
@@ -104,9 +96,6 @@ export const Predict = ({ navigation }) => {
                   thal: Yup.number().required("Please enter thal"),
                 })}
                 onSubmit={(values, formikActions) => {
-                  setLoading(true);
-                  setApiMessage(null);
-                  setSuccessMessage(null);
                   setIsSubmitting(true);
                   setTimeout(() => {
                     axios
@@ -115,21 +104,16 @@ export const Predict = ({ navigation }) => {
                         let resp = res.data;
                         console.log("resp", resp);
                         if (resp.success == "true") {
-                          await AsyncStorage.setItem(
-                            "userToken",
-                            JSON.stringify(resp.data)
-                          );
-                          setSuccessMessage(resp.message);
+                          setResult(resp.data);
                         } else {
-                          setApiMessage(resp.message);
+                          alert(resp.message);
                         }
                       })
                       .catch((err) => {
-                        setApiMessage(err.toString());
+                        alert(err.toString());
                         console.log(err);
                       })
                       .finally(() => {
-                        setLoading(false);
                         setIsSubmitting(false);
                         formikActions.setSubmitting(false);
                       });
@@ -138,6 +122,13 @@ export const Predict = ({ navigation }) => {
               >
                 {(props) => (
                   <View>
+                    {result.length > 0 && (
+                      <ModalMi
+                        showModal={true}
+                        navigation={navigation}
+                        result={result}
+                      />
+                    )}
                     <FormControl isRequired>
                       <FormControl.Label mt="2" fontWeight="extrabold">
                         Chest Pain
@@ -444,7 +435,7 @@ export const Predict = ({ navigation }) => {
                       {isSubmitting && (
                         <ActivityIndicator color="white" size="large" />
                       )}
-                      {!isSubmitting && "Submit"}
+                      Submit
                     </Button>
                   </View>
                 )}
