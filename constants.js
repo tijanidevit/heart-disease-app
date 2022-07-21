@@ -16,3 +16,7 @@ export const authUser = async () => {
 export const setAuthUser = async (data) => {
   await AsyncStorage.setItem("userToken", data);
 };
+
+export const removeAuthUser = async (a) => {
+  await AsyncStorage.removeItem("userToken");
+};

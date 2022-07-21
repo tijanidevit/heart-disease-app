@@ -15,13 +15,12 @@ import * as Yup from "yup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { setAuthUser, USER_URL } from "../constants";
+import { setAuthUser, removeAuthUser, USER_URL } from "../constants";
 import axios from "axios";
 
 export const Login = ({ navigation }) => {
   const [show, setShow] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [apiMessage, setApiMessage] = useState(null);
   useEffect(async () => {
     await AsyncStorage.removeItem("userToken");
     const userToken = await AsyncStorage.getItem("userToken");
@@ -56,7 +55,6 @@ export const Login = ({ navigation }) => {
             password: Yup.string().required("Password is required"),
           })}
           onSubmit={(values, formikActions) => {
-            setApiMessage(null);
             setIsLoading(true);
             setTimeout(() => {
               formikActions.setSubmitting(true);
@@ -65,14 +63,15 @@ export const Login = ({ navigation }) => {
                 .then(async (res) => {
                   let resp = res.data;
                   if (resp.success == "true") {
+                    removeAuthUser("a");
                     setAuthUser(JSON.stringify(resp.data));
                     await navigation.navigate("Home");
                   } else {
-                    setApiMessage(resp.message);
+                    alert(resp.message);
                   }
                 })
                 .catch((err) => {
-                  setApiMessage(err.toString());
+                  alert(err.toString());
                 })
                 .finally(() => {
                   setIsLoading(false);
@@ -83,12 +82,6 @@ export const Login = ({ navigation }) => {
         >
           {(props) => (
             <View>
-              {apiMessage != null && (
-                <Box px="3" bg="danger.600" mt="2" py="2">
-                  <Text color="white">{apiMessage}</Text>
-                </Box>
-              )}
-
               <FormControl isRequired>
                 <FormControl.Label mt="7" fontWeight="extrabold">
                   Email Address

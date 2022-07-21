@@ -16,13 +16,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios, { AxiosError } from "axios";
-import { USER_URL } from "../constants";
+import { removeAuthUser, setAuthUser, USER_URL } from "../constants";
 import { ActivityIndicator } from "react-native";
 
 export const Register = ({ navigation }) => {
   const [show, setShow] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [apiMessage, setApiMessage] = useState(null);
   useEffect(async () => {
     const userToken = await AsyncStorage.getItem("userToken");
     if (userToken && userToken != undefined) {
@@ -56,7 +55,6 @@ export const Register = ({ navigation }) => {
             password: Yup.string().required("Password is required").min(8),
           })}
           onSubmit={(values, formikActions) => {
-            setApiMessage(null);
             setTimeout(() => {
               formikActions.setSubmitting(true);
               setIsLoading(true);
@@ -67,17 +65,16 @@ export const Register = ({ navigation }) => {
                   let resp = res.data;
                   // console.log("resp", resp);
                   if (resp.success == "true") {
-                    await AsyncStorage.setItem(
-                      "userToken",
-                      JSON.stringify(resp.data)
-                    );
+                    removeAuthUser("a");
+
+                    setAuthUser(resp.data);
                     await navigation.navigate("Home");
                   } else {
-                    setApiMessage(resp.message);
+                    alert(resp.message);
                   }
                 })
                 .catch((err) => {
-                  setApiMessage(err.toString());
+                  alert(err.toString());
                   // console.log(err);
                 })
                 .finally(() => {
@@ -90,12 +87,6 @@ export const Register = ({ navigation }) => {
         >
           {(props) => (
             <View>
-              {apiMessage != null && (
-                <Box px="3" bg="danger.600" mt="2" py="2">
-                  <Text color="white">{apiMessage}</Text>
-                </Box>
-              )}
-
               <FormControl isRequired>
                 <FormControl.Label mt="4" fontWeight="extrabold">
                   Fullname

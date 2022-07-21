@@ -17,14 +17,7 @@ import {
   Icon,
   ScrollView,
 } from "native-base";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import Logo from "../assets/logo.png";
-import {
-  MaterialIcons,
-  MaterialCommunityIcons,
-  AntDesign,
-  Foundation,
-} from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Footer, Header } from "../components";
 import {
   ActivityIndicator,
@@ -72,7 +65,6 @@ export const Predict = ({ navigation }) => {
   return (
     <TouchableWithoutFeedback
       onPress={() => {
-        console.log("djdkjjkdjk");
         Keyboard.dismiss();
       }}
     >
@@ -86,17 +78,17 @@ export const Predict = ({ navigation }) => {
               <Formik
                 // enableReinitialize
                 initialValues={{
-                  cp: "", //Chest Pain
-                  trestbps: "", //Resting blood pressure
-                  chol: "", //serum cholesterol
-                  fbs: "", //fasting blood pressure
-                  restecg: "", //resting electrocardiographic results
-                  thalach: "", //maximum heart rate achieved
-                  exang: "", //exercise induced angina
-                  oldpeak: "", //ST depression
-                  slope: "", //slope of the peak exercise
-                  ca: "", //major vessels
-                  thal: "", //thalassemia
+                  cp: 0, //Chest Pain
+                  trestbps: 0, //Resting blood pressure
+                  chol: 0, //serum cholesterol
+                  fbs: 0, //fasting blood pressure
+                  restecg: 0, //resting electrocardiographic results
+                  thalach: 0, //maximum heart rate achieved
+                  exang: 0, //exercise induced angina
+                  oldpeak: 0, //ST depression
+                  slope: 0, //slope of the peak exercise
+                  ca: 0, //major vessels
+                  thal: 0, //thalassemia
                 }}
                 validationSchema={Yup.object({
                   cp: Yup.number().required("Please enter cp"),
@@ -115,6 +107,7 @@ export const Predict = ({ navigation }) => {
                   setLoading(true);
                   setApiMessage(null);
                   setSuccessMessage(null);
+                  setIsSubmitting(true);
                   setTimeout(() => {
                     axios
                       .post(`${PREDICTIONS_URL}/${user.id}`, values)
@@ -137,6 +130,7 @@ export const Predict = ({ navigation }) => {
                       })
                       .finally(() => {
                         setLoading(false);
+                        setIsSubmitting(false);
                         formikActions.setSubmitting(false);
                       });
                   }, 1);
@@ -416,33 +410,6 @@ export const Predict = ({ navigation }) => {
 
                     <FormControl isRequired>
                       <FormControl.Label mt="2" fontWeight="extrabold">
-                        Serum Cholesterol
-                      </FormControl.Label>
-                      <Input
-                        keyboardType="numeric"
-                        value={props.values.chol}
-                        InputLeftElement={
-                          <Icon
-                            as={<MaterialIcons name="list" />}
-                            size={5}
-                            ml="2"
-                            color="muted.400"
-                          />
-                        }
-                        onChangeText={props.handleChange("chol")}
-                        onBlur={props.handleBlur("chol")}
-                        placeholder="2"
-                        width="100%"
-                        type="number"
-                      />
-
-                      {props.touched.chol && props.errors.chol ? (
-                        <InputHelper text={props.errors.chol} />
-                      ) : null}
-                    </FormControl>
-
-                    <FormControl isRequired>
-                      <FormControl.Label mt="2" fontWeight="extrabold">
                         Thalassemia
                       </FormControl.Label>
                       <Input
@@ -475,7 +442,7 @@ export const Predict = ({ navigation }) => {
                       my="3"
                     >
                       {isSubmitting && (
-                        <ActivityIndicator color="white" size="small" />
+                        <ActivityIndicator color="white" size="large" />
                       )}
                       {!isSubmitting && "Submit"}
                     </Button>

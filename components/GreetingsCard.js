@@ -26,7 +26,7 @@ export const GreetingsCard = ({ name }) => {
       <Box mt="8">
         <Image source={Logo} size="sm" alt="User" />
         <Text fontSize="xl" bold color="black">
-          Good {time}, {name.split(" ")[0]}
+          Good {time}, {name && name.split(" ")[0]}
         </Text>
       </Box>
     </View>
