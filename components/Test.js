@@ -10,7 +10,8 @@ export const Test = ({ navigation, result }) => {
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.navigate("DiseasePage", { disease: result.keyword });
+        // navigation.navigate("DiseasePage", { disease: result.keyword });
+        navigation.navigate("DiseasePage", { disease: "Endocarditis" });
       }}
     >
       <Box

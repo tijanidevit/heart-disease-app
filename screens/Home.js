@@ -28,11 +28,11 @@ export const Home = ({ navigation }) => {
       .get(`${PREDICTIONS_URL}/history/${auser.id}`)
       .then(async (res) => {
         let resp = res.data;
-        console.log("res", res);
-        console.log("resp", resp);
+        // console.log("res", res);
+        // console.log("resp", resp);
         if (resp.success == "true") {
           setResult(resp.data);
-          console.log("resp.data", resp.data);
+          // console.log("resp.data", resp.data);
         } else {
         }
       })

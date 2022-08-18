@@ -30,7 +30,7 @@ export const ModalMi = ({ showModal, result, navigation }) => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          {result === "None" && (
+          {result !== "None" && (
             <Button
               bgColor="danger.500"
               flex="1"

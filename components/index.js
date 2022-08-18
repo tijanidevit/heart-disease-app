@@ -8,3 +8,6 @@ export * from "./CenterLogo";
 export * from "./AllPredictions";
 export * from "./InputHelper";
 export * from "./ModalMi";
+export * from "./DiseaseCard";
+export * from "./DoctorsCard";
+export * from "./SingleDoctor";

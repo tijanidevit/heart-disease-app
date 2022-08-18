@@ -148,7 +148,6 @@ export const Predict = ({ navigation }) => {
                         onBlur={props.handleBlur("cp")}
                         placeholder="2"
                         width="100%"
-                        type="number"
                       />
 
                       {props.touched.cp && props.errors.cp ? (
@@ -175,7 +174,6 @@ export const Predict = ({ navigation }) => {
                         onBlur={props.handleBlur("trestbps")}
                         placeholder="160"
                         width="100%"
-                        type="number"
                       />
 
                       {props.touched.trestbps && props.errors.trestbps ? (
@@ -202,7 +200,6 @@ export const Predict = ({ navigation }) => {
                         onBlur={props.handleBlur("chol")}
                         placeholder="286"
                         width="100%"
-                        type="number"
                       />
 
                       {props.touched.chol && props.errors.chol ? (
@@ -229,7 +226,6 @@ export const Predict = ({ navigation }) => {
                         onBlur={props.handleBlur("fbs")}
                         placeholder="0"
                         width="100%"
-                        type="number"
                       />
 
                       {props.touched.fbs && props.errors.fbs ? (
@@ -256,7 +252,6 @@ export const Predict = ({ navigation }) => {
                         onBlur={props.handleBlur("restecg")}
                         placeholder="2"
                         width="100%"
-                        type="number"
                       />
 
                       {props.touched.restecg && props.errors.restecg ? (
@@ -283,7 +278,6 @@ export const Predict = ({ navigation }) => {
                         onBlur={props.handleBlur("thalach")}
                         placeholder="108"
                         width="100%"
-                        type="number"
                       />
 
                       {props.touched.thalach && props.errors.thalach ? (
@@ -310,7 +304,6 @@ export const Predict = ({ navigation }) => {
                         onBlur={props.handleBlur("exang")}
                         placeholder="1"
                         width="100%"
-                        type="number"
                       />
 
                       {props.touched.exang && props.errors.exang ? (
@@ -337,7 +330,6 @@ export const Predict = ({ navigation }) => {
                         onBlur={props.handleBlur("oldpeak")}
                         placeholder="2"
                         width="100%"
-                        type="number"
                       />
 
                       {props.touched.oldpeak && props.errors.oldpeak ? (
@@ -364,7 +356,6 @@ export const Predict = ({ navigation }) => {
                         onBlur={props.handleBlur("slope")}
                         placeholder="2"
                         width="100%"
-                        type="number"
                       />
 
                       {props.touched.slope && props.errors.slope ? (
@@ -391,7 +382,6 @@ export const Predict = ({ navigation }) => {
                         onBlur={props.handleBlur("ca")}
                         placeholder="1.5"
                         width="100%"
-                        type="number"
                       />
 
                       {props.touched.ca && props.errors.ca ? (
@@ -418,7 +408,6 @@ export const Predict = ({ navigation }) => {
                         onBlur={props.handleBlur("thal")}
                         placeholder="3"
                         width="100%"
-                        type="number"
                       />
 
                       {props.touched.thal && props.errors.thal ? (
